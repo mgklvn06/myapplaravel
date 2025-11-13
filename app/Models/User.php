@@ -21,7 +21,22 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
     ];
+
+    protected $attributes = [
+        'role' => 'customer',
+    ];
+
+    public function isAdmin(): bool
+{
+    return strtolower($this->role ?? '') === 'admin';
+}
+
+public function isCustomer(): bool
+{
+    return strtolower($this->role ?? '') === 'customer';
+}
 
     /**
      * The attributes that should be hidden for serialization.
