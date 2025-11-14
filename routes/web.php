@@ -22,7 +22,10 @@ use App\Http\Controllers\CheckoutController;
 // public shop
 use App\Http\Controllers\ProductController;
 Route::get('/', [ProductController::class,'index'])->name('home');
-Route::get('/product/{product:slug}', [ProductController::class,'show'])->name('product.show');
+// products listing (used by nav and admin links)
+Route::get('/products', [ProductController::class,'index'])->name('products.index');
+// product detail (slug-based)
+Route::get('/products/{product:slug}', [ProductController::class,'show'])->name('products.show');
 
 // cart & checkout
 Route::get('/cart', [CartController::class,'index'])->name('cart.index');
@@ -40,6 +43,7 @@ Route::middleware('auth')->group(function(){
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/', function(){ return redirect()->route('admin.products.index'); })->name('dashboard');
     Route::resource('products', AdminProductController::class);
+    Route::resource('orders', AdminOrderController::class);
 });
 
 // CUSTOMER-only example (for account pages, orders, checkout)
@@ -53,11 +57,7 @@ Route::get('/special', function(){
     return 'allowed for admin or customer';
 })->middleware(['auth','role:admin,customer']);
 
-// admin (simple gate or middleware)
-Route::middleware(['auth','can:manage-products'])->prefix('admin')->group(function(){
-    Route::resource('products', AdminProductController::class);
-    Route::resource('orders', AdminOrderController::class);
-});
+// NOTE: admin routes are registered above with the 'admin.' name prefix and role:admin middleware.
 
 
 Route::get('/dashboard', function () {

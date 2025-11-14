@@ -17,6 +17,9 @@ class RouteServiceProvider extends ServiceProvider
      *
      * @var string
      */
+    // Default home path used by Laravel's authentication redirect when no role-based
+    // target is configured. Use a neutral dashboard route instead of the admin
+    // area so regular customers aren't redirected to /admin after login.
     public const HOME = '/dashboard';
 
     /**

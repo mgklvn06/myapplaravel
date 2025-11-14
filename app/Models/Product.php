@@ -19,6 +19,14 @@ class Product extends Model
     {
         return $this->hasMany(OrderItem::class);
     }
+    
+    /**
+     * Category relationship
+     */
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
     protected $casts = [
     'images' => 'array',
     'attributes' => 'array',

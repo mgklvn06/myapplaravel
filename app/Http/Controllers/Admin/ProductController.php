@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Product;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
@@ -12,7 +13,9 @@ class ProductController extends Controller
      */
     public function index()
     {
-        //
+        // Simple admin listing — returns a basic view so the route renders instead of a blank page.
+        $products = Product::orderBy('created_at', 'desc')->paginate(20);
+        return view('admin.products.index', compact('products'));
     }
 
     /**
