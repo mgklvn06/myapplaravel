@@ -1,8 +1,4 @@
-@extends('layouts.app')
-
-@section('title','Admin Dashboard')
-
-@section('content')
+<x-app-layout title="Admin Dashboard">
   <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
     <div class="p-4 bg-white rounded shadow">
       <div class="text-sm text-gray-500">Total Products</div>
@@ -41,8 +37,10 @@
       <div class="flex flex-col gap-2">
         <a class="px-3 py-2 border rounded" href="{{ route('admin.products.create') }}">Create Product</a>
         <a class="px-3 py-2 border rounded" href="{{ route('admin.products.index') }}">Manage Products</a>
+        <a class="px-3 py-2 border rounded" href="{{ route('admin.orders.index') }}">Manage Orders</a>
+        <a class="px-3 py-2 border rounded" href="{{ route('profile.edit') }}">Profile Settings</a>
         <a class="px-3 py-2 border rounded" href="{{ route('products.index') }}">View Storefront</a>
       </div>
     </div>
   </div>
-@endsection
+</x-app-layout>

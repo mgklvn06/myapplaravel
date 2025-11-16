@@ -23,7 +23,8 @@ class ProductController extends Controller
      */
     public function create()
     {
-        //
+        $categories = \App\Models\Category::orderBy('name')->get();
+        return view('admin.products.create', compact('categories'));
     }
 
     /**
@@ -31,7 +32,27 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'slug' => 'required|string|max:255|unique:products,slug',
+            'description' => 'required|string',
+            'price' => 'required|numeric|min:0',
+            'category_id' => 'nullable|exists:categories,id',
+            'stock_quantity' => 'required|integer|min:0',
+            'is_active' => 'boolean',
+        ]);
+
+        $product = Product::create([
+            'name' => $request->name,
+            'slug' => $request->slug,
+            'description' => $request->description,
+            'price' => $request->price,
+            'category_id' => $request->category_id,
+            'stock_quantity' => $request->stock_quantity,
+            'is_active' => $request->has('is_active'),
+        ]);
+
+        return redirect()->route('admin.products.index')->with('success', 'Product created successfully.');
     }
 
     /**
@@ -39,7 +60,8 @@ class ProductController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $product = Product::with('category')->findOrFail($id);
+        return view('admin.products.show', compact('product'));
     }
 
     /**
@@ -47,7 +69,9 @@ class ProductController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $product = Product::findOrFail($id);
+        $categories = \App\Models\Category::orderBy('name')->get();
+        return view('admin.products.edit', compact('product', 'categories'));
     }
 
     /**
@@ -55,7 +79,29 @@ class ProductController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $product = Product::findOrFail($id);
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'slug' => 'required|string|max:255|unique:products,slug,' . $product->id,
+            'description' => 'required|string',
+            'price' => 'required|numeric|min:0',
+            'category_id' => 'nullable|exists:categories,id',
+            'stock_quantity' => 'required|integer|min:0',
+            'is_active' => 'boolean',
+        ]);
+
+        $product->update([
+            'name' => $request->name,
+            'slug' => $request->slug,
+            'description' => $request->description,
+            'price' => $request->price,
+            'category_id' => $request->category_id,
+            'stock_quantity' => $request->stock_quantity,
+            'is_active' => $request->has('is_active'),
+        ]);
+
+        return redirect()->route('admin.products.index')->with('success', 'Product updated successfully.');
     }
 
     /**
@@ -63,6 +109,9 @@ class ProductController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $product = Product::findOrFail($id);
+        $product->delete();
+
+        return redirect()->route('admin.products.index')->with('success', 'Product deleted successfully.');
     }
 }

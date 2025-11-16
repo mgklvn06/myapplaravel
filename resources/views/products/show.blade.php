@@ -32,10 +32,11 @@
                     </div>
 
                     <div class="flex items-center space-x-4">
-                        @if($product->stock > 0)
-                            <form method="POST" action="#">
+                        @if(($product->stock_quantity ?? 0) > 0)
+                            <form method="POST" action="{{ route('cart.add', $product) }}" class="js-add-to-cart" aria-label="Add {{ $product->name }} to cart">
                                 @csrf
-                                <button type="button" class="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg">
+                                <input type="hidden" name="quantity" value="1">
+                                <button type="submit" class="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-300">
                                     Add to cart
                                 </button>
                             </form>
@@ -43,10 +44,34 @@
                             <div class="text-sm text-red-600 font-semibold">Out of stock</div>
                         @endif
 
-                        <div class="text-sm text-gray-500">SKU: {{ $product->id }}</div>
+                        <div class="text-sm text-gray-500">SKU: {{ $product->sku ?? $product->id }}</div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</x-app-layout>
+
+@if(isset($recentlyViewed) && $recentlyViewed->count())
+    
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight">Recently viewed</h2>
+
+        <div class="py-6">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-6">
+                    @foreach($recentlyViewed as $rv)
+                        <a href="{{ route('products.show', $rv) }}" class="block bg-white p-3 rounded shadow">
+                            <div class="h-24 bg-gray-100 flex items-center justify-center mb-2">
+                                @if($rv->image_url)
+                                    <img src="{{ $rv->image_url }}" alt="{{ $rv->name }}" class="h-full object-cover">
+                                @else
+                                    <div class="text-gray-400">No image</div>
+                                @endif
+                            </div>
+                            <div class="text-sm text-gray-700">{{ Str::limit($rv->name, 40) }}</div>
+                        </a>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+    </x-app-layout>
+@endif

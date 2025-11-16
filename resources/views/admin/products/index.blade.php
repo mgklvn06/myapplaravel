@@ -1,8 +1,4 @@
-@extends('layouts.app')
-
-@section('title','Admin - Products')
-
-@section('content')
+<x-app-layout title="Admin - Products">
   <div class="flex justify-between items-center mb-4">
     <h1 class="text-2xl font-bold">Products</h1>
     <a href="{{ route('admin.products.create') }}" class="px-3 py-1 border rounded">Create product</a>
@@ -30,6 +26,7 @@
         <td class="p-2">${{ number_format($p->price,2) }}</td>
         <td class="p-2">{{ $p->stock_quantity }}</td>
         <td class="p-2">
+          <a class="mr-2 text-blue-600" href="{{ route('admin.products.show', $p) }}">View</a>
           <a class="mr-2 text-blue-600" href="{{ route('admin.products.edit', $p) }}">Edit</a>
 
           <form action="{{ route('admin.products.destroy', $p) }}" method="post" style="display:inline" onsubmit="return confirm('Remove product?')">
@@ -45,4 +42,4 @@
   <div class="mt-4">
     {{ $products->links() }}
   </div>
-@endsection
+</x-app-layout>

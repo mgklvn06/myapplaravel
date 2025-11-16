@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Category;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 class ProductController extends Controller
 {
@@ -85,9 +87,81 @@ class ProductController extends Controller
             'filters' => $request->only(['q', 'category', 'min_price', 'max_price', 'sort', 'per_page']),
         ]);
     }
-    public function category()
-{
-    return $this->belongsTo(Category::class);
-}
+
+    /**
+     * Show a single product, record view and preserve recently viewed list.
+     */
+    public function show(Request $request, Product $product)
+    {
+        // increment lightweight view counter
+        try {
+            // use DB increment to avoid model method visibility issues
+            DB::table('products')->where('id', $product->id)->increment('view_count');
+        } catch (\Exception $e) {
+            // ignore increment failures
+        }
+
+        // Record to DB for authenticated users if table exists
+        if (auth()->check() && Schema::hasTable('product_user_views')) {
+            try {
+                DB::table('product_user_views')->insertOrIgnore([
+                    'user_id' => auth()->id(),
+                    'product_id' => $product->id,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            } catch (\Exception $e) {
+                // swallow DB errors
+            }
+        }
+
+        // Session-based recently viewed (front-end friendly)
+        if (function_exists('session')) {
+            $ids = session('recently_viewed', []);
+            array_unshift($ids, $product->id);
+            $ids = array_values(array_unique($ids));
+            $ids = array_slice($ids, 0, 20);
+            session(['recently_viewed' => $ids]);
+        }
+
+        // Prepare recently viewed collection for the view (limit 6)
+        $recentlyViewed = collect();
+        if (auth()->check()) {
+            // prefer DB-backed product_user_views when available
+            if (Schema::hasTable('product_user_views')) {
+                $ids = DB::table('product_user_views')
+                    ->where('user_id', auth()->id())
+                    ->orderBy('created_at', 'desc')
+                    ->pluck('product_id')
+                    ->unique()
+                    ->take(6)
+                    ->toArray();
+
+                if (count($ids)) {
+                    $prods = Product::whereIn('id', $ids)->get()->keyBy('id');
+                    $recentlyViewed = collect($ids)->map(fn($id) => $prods->get($id))->filter();
+                }
+            } else {
+                // fallback to session for authenticated users as well
+                $ids = session('recently_viewed', []);
+                $ids = array_filter($ids, fn($id) => $id !== $product->id);
+                if (count($ids)) {
+                    $products = Product::whereIn('id', $ids)->get()->keyBy('id');
+                    $ordered = collect(array_slice($ids, 0, 6))->map(fn($id) => $products->get($id))->filter();
+                    $recentlyViewed = $ordered;
+                }
+            }
+        } else {
+            $ids = session('recently_viewed', []);
+            $ids = array_filter($ids, fn($id) => $id !== $product->id);
+            if (count($ids)) {
+                $products = Product::whereIn('id', $ids)->get()->keyBy('id');
+                $ordered = collect(array_slice($ids, 0, 6))->map(fn($id) => $products->get($id))->filter();
+                $recentlyViewed = $ordered;
+            }
+        }
+
+        return view('products.show', compact('product', 'recentlyViewed'));
+    }
 
 }

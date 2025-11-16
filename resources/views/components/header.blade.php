@@ -1,7 +1,7 @@
 <nav class="bg-white shadow-md">
   <div class="container mx-auto px-4 py-3 flex items-center justify-between">
     <div class="flex items-center gap-6">
-      <a href="{{ auth()->check() ? route('account.dashboard') : route('home') }}" class="font-bold text-xl text-indigo-600">My Shop</a>
+      <a href="{{ route('home') }}" class="font-bold text-xl text-indigo-600">My Shop</a>
       <a href="{{ route('products.index') }}" class="text-sm text-gray-700 hover:text-indigo-600">Products</a>
       <a href="{{ route('home') }}#collections" class="text-sm text-gray-700 hover:text-indigo-600">Collections</a>
     </div>
@@ -14,15 +14,13 @@
         <button class="border rounded-r px-3 py-1 bg-indigo-50 text-indigo-600">Search</button>
       </form>
 
-      <a href="{{ route('cart.index') }}" class="flex items-center gap-2 px-3 py-1 border rounded text-sm">
+  <a href="{{ route('cart.index') }}" class="flex items-center gap-2 px-3 py-1 border rounded text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300" aria-label="View cart">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600" viewBox="0 0 20 20" fill="currentColor">
           <path d="M16 11V3a1 1 0 00-1-1H5a1 1 0 00-1 1v8H1v2h1a3 3 0 006 0h6a3 3 0 006 0h1v-2h-4z" />
         </svg>
         <span class="hidden sm:inline">Cart</span>
         @php $cartCount = session('cart') ? array_sum(array_column(session('cart'), 'quantity')) : 0; @endphp
-        @if($cartCount)
-          <span class="ml-1 inline-block bg-indigo-600 text-white text-xs px-2 py-0.5 rounded">{{ $cartCount }}</span>
-        @endif
+        <span id="cart-count" class="ml-1 inline-block bg-indigo-600 text-white text-xs px-2 py-0.5 rounded" aria-live="polite">{{ $cartCount }}</span>
       </a>
 
       @auth

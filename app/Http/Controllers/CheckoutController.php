@@ -15,23 +15,25 @@ namespace App\Http\Controllers;
                 /**
                  * Display checkout form
                  */
-                public function show()
+                public function index()
                 {
                     $cart = session()->get('cart', []);
 
                     if (empty($cart)) {
                         return redirect()->route('cart.index')->with('error', 'Cart is empty');
                     }
-                    $products = Product::whereIn('id', array_keys($cart))->get();   
+                    $products = Product::whereIn('id', array_keys($cart))->get();
                     $total = $products->sum(function ($product) use ($cart) {
                         return $product->price * $cart[$product->id]['quantity'];
                     });
+
+                    return view('checkout.index', compact('cart', 'products', 'total'));
                 }
 
                 /**
                  * Process checkout and create order
                  */
-                public function process(Request $request)
+                public function store(Request $request)
                 {
                     $this->validate($request, [
                         'shipping_address' => 'required|string|max:255',

@@ -1,8 +1,4 @@
-@extends('layouts.app')
-
-@section('title','My Account')
-
-@section('content')
+<x-app-layout title="My Account">
   <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
     <div class="p-4 bg-white rounded shadow">
       <div class="text-sm text-gray-500">Welcome back</div>
@@ -23,8 +19,8 @@
     <div class="p-4 bg-white rounded shadow">
       <div class="text-sm text-gray-500">Actions</div>
       <div class="mt-2 flex flex-col gap-2">
-        <a href="#" class="px-3 py-2 border rounded">Edit Profile</a>
-        <a href="#" class="px-3 py-2 border rounded">My Orders</a>
+        <a href="{{ route('profile.edit') }}" class="px-3 py-2 border rounded">Edit Profile</a>
+        <a href="{{ route('account.orders.index') }}" class="px-3 py-2 border rounded">My Orders</a>
       </div>
     </div>
   </div>
@@ -41,4 +37,4 @@
 
     @include('products._grid', ['products' => $items])
   </div>
-@endsection
+</x-app-layout>

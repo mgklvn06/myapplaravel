@@ -20,8 +20,9 @@ use App\Http\Controllers\CheckoutController;
 */
 
 // public shop
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProductController;
-Route::get('/', [ProductController::class,'index'])->name('home');
+Route::get('/', [HomeController::class,'index'])->name('home');
 // products listing (used by nav and admin links)
 Route::get('/products', [ProductController::class,'index'])->name('products.index');
 // product detail (slug-based)
@@ -30,6 +31,7 @@ Route::get('/products/{product:slug}', [ProductController::class,'show'])->name(
 // cart & checkout
 Route::get('/cart', [CartController::class,'index'])->name('cart.index');
 Route::post('/cart/add/{product}', [CartController::class,'add'])->name('cart.add');
+Route::patch('/cart/update/{id}', [CartController::class,'update'])->name('cart.update');
 Route::post('/cart/remove/{id}', [CartController::class,'remove'])->name('cart.remove');
 
 Route::middleware('auth')->group(function(){
@@ -41,7 +43,7 @@ Route::middleware('auth')->group(function(){
 
 // ADMIN only area
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->group(function () {
-    Route::get('/', function(){ return redirect()->route('admin.products.index'); })->name('dashboard');
+    Route::get('/', function(){ return view('admin.dashboard'); })->name('dashboard');
     Route::resource('products', AdminProductController::class);
     Route::resource('orders', AdminOrderController::class);
 });
@@ -49,7 +51,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
 // CUSTOMER-only example (for account pages, orders, checkout)
 Route::prefix('account')->name('account.')->middleware(['auth', 'role:customer'])->group(function () {
     Route::get('dashboard', function(){ return view('account.dashboard'); })->name('dashboard');
-    Route::get('orders', function(){ /* ... */ })->name('orders.index');
+    Route::get('orders', function(){
+        $orders = auth()->user()->orders()->with('items.product')->latest()->paginate(10);
+        return view('account.orders.index', compact('orders'));
+    })->name('orders.index');
 });
 
 // OR allow either admin OR customer on a route:

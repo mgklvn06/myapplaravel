@@ -1,8 +1,4 @@
-@extends('layouts.app')
-
-@section('title','Create product')
-
-@section('content')
+<x-app-layout title="Create product">
   <h1 class="text-2xl font-bold mb-4">Create product</h1>
 
   @if($errors->any())
@@ -15,7 +11,7 @@
 
   <form action="{{ route('admin.products.store') }}" method="post">
     @csrf
-    @include('admin.products._form', ['product' => null])
+    @include('admin.products.form', ['product' => null])
     <div><button class="px-3 py-1 border rounded">Create</button></div>
   </form>
-@endsection
+</x-app-layout>

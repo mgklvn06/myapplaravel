@@ -49,21 +49,27 @@ class CartController extends Controller
 
         session()->put('cart', $cart);
 
+        // calculate total items in cart
+        $cartCount = array_sum(array_column(session('cart', []), 'quantity'));
+
+        // If AJAX / expects JSON, return JSON response
+        if ($request->wantsJson() || $request->ajax() || str_contains($request->header('Accept', ''), 'application/json')) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Added to cart',
+                'cart_count' => $cartCount,
+            ]);
+        }
+
         return back()->with('success', 'Added to cart');
     }
 
     /**
      * Update product quantity in cart
      */
-    public function update(Request $request, Product $product)
+    public function update(Request $request, $id)
     {
-        // Validate product exists and is active
-        if (!$product || !$product->is_active) {
-            return back()->with('error', 'Product is not available');
-        }
-
         $cart = session()->get('cart', []);
-        $id = $product->id;
 
         if (!isset($cart[$id])) {
             return back()->with('error', 'Item not found in cart');
@@ -75,8 +81,9 @@ class CartController extends Controller
         if ($qty <= 0) {
             unset($cart[$id]);
         } else {
-            // Check stock availability
-            if ($qty > $product->stock) {
+            // Check stock availability if product exists
+            $product = \App\Models\Product::find($id);
+            if ($product && $qty > $product->stock_quantity) {
                 return back()->with('error', 'Not enough stock available');
             }
             $cart[$id]['quantity'] = $qty;
