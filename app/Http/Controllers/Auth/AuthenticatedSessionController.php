@@ -56,7 +56,40 @@ class AuthenticatedSessionController extends Controller
             $targetUrl = $target;
         }
 
-        return redirect()->intended($targetUrl);
+        // Check if there's an intended URL and if the user has access to it
+        if ($request->session()->has('url.intended')) {
+            $intendedUrl = $request->session()->get('url.intended');
+            // Check if the intended URL is for a role-restricted area
+            if ($this->userCanAccessIntendedUrl($user, $intendedUrl)) {
+                return redirect()->intended($targetUrl);
+            } else {
+                // Clear the intended URL if user can't access it
+                $request->session()->forget('url.intended');
+            }
+        }
+
+        return redirect($targetUrl);
+    }
+
+    /**
+     * Check if the user can access the intended URL based on their role
+     */
+    private function userCanAccessIntendedUrl($user, $intendedUrl)
+    {
+        // Parse the intended URL to get the path
+        $path = parse_url($intendedUrl, PHP_URL_PATH);
+
+        // Check role-restricted areas
+        if (str_starts_with($path, '/admin')) {
+            return strtolower($user->role ?? '') === 'admin';
+        }
+
+        if (str_starts_with($path, '/account')) {
+            return strtolower($user->role ?? '') === 'customer';
+        }
+
+        // For other paths, allow access
+        return true;
     }
 
     /**

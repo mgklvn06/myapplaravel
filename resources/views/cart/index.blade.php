@@ -34,9 +34,8 @@
                                             <input type="number" name="quantity" value="{{ $item['quantity'] }}" min="1" class="w-16 border rounded px-2 py-1">
                                             <button type="submit" class="bg-indigo-600 text-white px-3 py-1 rounded hover:bg-indigo-700">Update</button>
                                         </form>
-                                        <form action="{{ route('cart.remove', $id) }}" method="POST" class="inline">
+                                        <form action="{{ route('cart.remove', $id) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to remove this item?')">
                                             @csrf
-                                            @method('DELETE')
                                             <button type="submit" class="text-red-600 hover:text-red-800">Remove</button>
                                         </form>
                                         <div class="text-lg font-semibold">${{ number_format($subtotal, 2) }}</div>

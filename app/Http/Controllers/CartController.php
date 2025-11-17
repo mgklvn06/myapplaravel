@@ -30,8 +30,8 @@ class CartController extends Controller
         // Check stock availability
         $currentQty = $cart[$id]['quantity'] ?? 0;
         $totalQty = $currentQty + $qty;
-        
-        if ($totalQty > $product->stock) {
+
+        if ($totalQty > $product->stock_quantity) {
             return back()->with('error', 'Not enough stock available');
         }
 

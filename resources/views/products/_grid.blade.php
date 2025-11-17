@@ -32,7 +32,7 @@
           <form action="{{ route('cart.add', $product) }}" method="POST" class="flex items-center gap-2 js-add-to-cart" aria-label="Add {{ $product->name }} to cart">
             @csrf
             <input type="hidden" name="quantity" value="1">
-            <button type="submit" class="flex-1 inline-flex items-center justify-center px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300">Add to cart</button>
+            <a href="#" class="flex-1 inline-flex items-center justify-center px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300" onclick="event.preventDefault(); this.closest('form').dispatchEvent(new Event('submit', {bubbles: true, cancelable: true}));">Add to cart</a>
             <a href="{{ route('products.show', $product) }}" class="inline-flex items-center px-3 py-2 border rounded-md text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-300" aria-label="View details for {{ $product->name }}">Details</a>
           </form>
         </div>

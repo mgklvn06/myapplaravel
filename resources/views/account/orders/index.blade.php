@@ -47,7 +47,6 @@
                     @endforeach
                 </div>
 
-                <!-- Pagination -->
                 <div class="mt-8">
                     {{ $orders->links() }}
                 </div>

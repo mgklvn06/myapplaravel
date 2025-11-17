@@ -13,7 +13,19 @@ document.addEventListener('DOMContentLoaded', function () {
 	function showToast(message, success = true) {
 		const t = document.createElement('div');
 		t.textContent = message;
-		t.className = `fixed bottom-6 right-6 px-4 py-2 rounded shadow-lg ${success ? 'bg-green-600 text-white' : 'bg-red-600 text-white'}`;
+		t.style.cssText = `
+			position: fixed;
+			bottom: 24px;
+			right: 24px;
+			padding: 8px 16px;
+			border-radius: 4px;
+			box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+			border: 2px solid ${success ? '#16a34a' : '#dc2626'};
+			background-color: ${success ? '#16a34a' : '#dc2626'};
+			color: white;
+			font-weight: 600;
+			z-index: 50;
+		`;
 		document.body.appendChild(t);
 		setTimeout(() => t.remove(), 3000);
 	}

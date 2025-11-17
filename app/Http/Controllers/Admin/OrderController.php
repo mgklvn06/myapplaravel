@@ -12,7 +12,8 @@ class OrderController extends Controller
      */
     public function index()
     {
-        //
+        $orders = \App\Models\Order::with('user', 'items.product')->latest()->paginate(20);
+        return view('admin.orders.index', compact('orders'));
     }
 
     /**
@@ -36,7 +37,8 @@ class OrderController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $order = \App\Models\Order::with('user', 'items.product')->findOrFail($id);
+        return view('admin.orders.show', compact('order'));
     }
 
     /**
@@ -52,7 +54,14 @@ class OrderController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $order = \App\Models\Order::findOrFail($id);
+        $request->validate([
+            'status' => 'required|in:pending,processing,completed,cancelled'
+        ]);
+
+        $order->update(['status' => $request->status]);
+
+        return back()->with('success', 'Order status updated successfully');
     }
 
     /**
