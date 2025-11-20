@@ -53,6 +53,8 @@ document.addEventListener('DOMContentLoaded', function () {
 				if (count !== null) {
 					const el = document.getElementById('cart-count');
 					if (el) el.textContent = count;
+					const elMobile = document.getElementById('cart-count-mobile');
+					if (elMobile) elMobile.textContent = count;
 				}
 				showToast(data?.message ?? 'Added to cart');
 			} else {

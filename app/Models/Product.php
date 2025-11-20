@@ -28,7 +28,7 @@ class Product extends Model
         return $this->belongsTo(Category::class);
     }
     protected $casts = [
-    'images' => 'array',
+    'images' => 'string',
     'attributes' => 'array',
     'is_active' => 'boolean',
     'is_featured' => 'boolean',

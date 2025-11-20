@@ -32,7 +32,7 @@ return new class extends Migration
             $table->foreignId('category_id')->nullable()->constrained('categories')->nullOnDelete();
 
             // Dimensions & extra data
-            $table->json('images')->nullable();
+            $table->string('images')->nullable();
             $table->json('attributes')->nullable();
 
             // Optional metrics
