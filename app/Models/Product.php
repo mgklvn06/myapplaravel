@@ -19,7 +19,7 @@ class Product extends Model
     {
         return $this->hasMany(OrderItem::class);
     }
-    
+
     /**
      * Category relationship
      */
@@ -28,11 +28,33 @@ class Product extends Model
         return $this->belongsTo(Category::class);
     }
     protected $casts = [
-    'images' => 'string',
     'attributes' => 'array',
     'is_active' => 'boolean',
     'is_featured' => 'boolean',
 ];
 
-}
+    /**
+     * Get the main image URL for the product.
+     */
+    public function getImageUrlAttribute()
+    {
+        $images = $this->getOriginal('images'); // get raw value from DB
 
+        if (is_string($images)) {
+            $decoded = json_decode($images, true);
+            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                $images = $decoded;
+            } else {
+                // it's a plain string URL
+                return $images;
+            }
+        }
+
+        if (is_array($images) && !empty($images)) {
+            return $images[0];
+        }
+
+        // Fallback to 'image' field if it exists
+        return $this->getAttribute('image') ?? null;
+    }
+}

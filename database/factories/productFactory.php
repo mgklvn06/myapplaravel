@@ -44,7 +44,7 @@ class ProductFactory extends Factory
             'is_active' => $faker->boolean(90),
             'is_featured' => $faker->boolean(10),
             'category_id' => $categoryId,
-            'images' => 'https://source.unsplash.com/random/800x800/?' . urlencode(strtolower($keyword)),
+            'images' => ['https://dummyimage.com/800x600/cccccc/000.png&text=Product+Image'],
             'attributes' => [
                 'color' => $faker->randomElement(['red','blue','green','black','white']),
                 'size' => $faker->randomElement(['S','M','L','XL']),
@@ -68,7 +68,7 @@ class ProductFactory extends Factory
                 'slug' => Str::slug($name) . '-' . Str::random(6),
                 'description' => $faker->paragraphs(mt_rand(1,3), true),
                 'images' => [
-                    'https://source.unsplash.com/random/800x800/?' . urlencode(strtolower($nameWords[0])),
+                    'https://picsum.photos/800/600',
                 ],
             ];
         });

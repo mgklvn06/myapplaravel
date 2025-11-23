@@ -63,7 +63,7 @@ namespace App\Http\Controllers;
                             $qty = $cart[$product->id]['quantity'];
 
                             // Check stock
-                            if ($qty > $product->stock) {
+                            if ($qty > $product->stock_quantity) {
                                 DB::rollBack();
                                 return back()->with('error', "Not enough stock for {$product->name}");
                             }
@@ -97,7 +97,7 @@ namespace App\Http\Controllers;
                             ]);
 
                             // Reduce stock
-                            $product->decrement('stock', $qty);
+                            $product->decrement('stock_quantity', $qty);
                             $product->increment('sold_count', $qty);
                         }
 
@@ -106,8 +106,33 @@ namespace App\Http\Controllers;
                         // Clear cart
                         session()->forget('cart');
 
+                        // Initiate M-Pesa STK Push payment
+                        if ($request->input('payment_method') === 'mpesa') {
+                            $mpesaService = app(\App\Services\MpesaService::class);
+                            $stkResponse = $mpesaService->initiateSTKPush(
+                                $request->input('phone'),
+                                $total,
+                                'Order:' . $order->id,
+                                'Payment for Order #' . $order->id
+                            );
+
+                            if (isset($stkResponse['error'])) {
+                                return back()->with('error', 'Failed to initiate M-Pesa payment: ' . $stkResponse['error']);
+                            }
+
+                            // Log M-Pesa transaction initiation
+                            \App\Models\MpesaTransaction::create([
+                                'external_id' => $stkResponse['CheckoutRequestID'] ?? null,
+                                'checkout_request_id' => $stkResponse['CheckoutRequestID'] ?? null,
+                                'type' => 'stk_push_init',
+                                'payload' => $stkResponse,
+                                'amount' => $total,
+                                'phone_number' => $request->input('phone'),
+                            ]);
+                        }
+
                         return redirect()->route('order.show', $order->id)
-                            ->with('success', 'Order placed successfully!');
+                            ->with('success', 'Order placed successfully! M-Pesa payment initiated.');
 
                     } catch (\Exception $e) {
                         DB::rollBack();
